@@ -30,6 +30,9 @@ function Process:__init(basicRate, atpCost, inputCompounds, outputCompounds)
     self.inConcentrationFactor = 1.0
     self.outConcentrationFactor = 1.0
     self.atpCost = atpCost
+    self.ratelaw = function() -- we can define default rate laws in the configs once those are translated to lua
+        return 1
+    end
     -- costPriorityFactor and inputUnitSum are used as minor precalculation optimizations
     self.costPriorityFactor = 1 - atpCost* 0.5 / MAX_EXPECTED_PROCESS_ATP_COST
     self.inputUnitSum = 0 
@@ -47,8 +50,7 @@ function Process:updateFactors(parentMicrobe)
     end
     -- Update input concentration factor
     self.inConcentrationFactor = 1.0
-   
-   
+
     -- Find minimum concentration and use as limiting factor
     for compoundId ,_ in pairs(self.inputCompounds) do
         local compoundConcentration = (parentMicrobe:getCompoundAmount(compoundId) / parentMicrobe.microbe.capacity)
@@ -56,7 +58,7 @@ function Process:updateFactors(parentMicrobe)
             self.inConcentrationFactor = compoundConcentration
         end
     end
-   
+
     --Alternate way of looking at concentrations - product of concentrations:
    -- Multiplying up concentrations for all input compounds
     --for compoundId ,_ in pairs(self.inputCompounds) do
@@ -79,9 +81,9 @@ CAPACITY_EVEN_FACTOR = 0.4
 -- @param milliseconds
 -- The simulation time
 --
-function Process:produce(milliseconds, capacityFactor, parentMicrobe, storageTarget)
+function Process:produce(milliseconds, capacityFactor, compoundSource, storageTarget)
     -- Factor here is the value we multiply on to the compound amounts to be produced and consumed,
-    -- so a factor=1.0 would mean that respiration would use 1 glucose and produce 6 Oxygen
+    -- so a factor=1.0 would mean that respiration would use 1 glucose and produce 6 CO2
     -- Lower values for in and out weights here bring the factors closer to constant 1 (no effect)
     -- We want to do 1-concentration for output concentration so that higher concentration gives lower factor
     local factor = (self.inConcentrationFactor^INPUT_CONCENTRATION_WEIGHT) *
@@ -90,26 +92,26 @@ function Process:produce(milliseconds, capacityFactor, parentMicrobe, storageTar
                     (milliseconds/1000) *
                     capacityFactor
     local cost =  factor * self.atpCost
-    if parentMicrobe:getCompoundAmount(CompoundRegistry.getCompoundId("atp")) >= cost then
-        -- Making sure microbe has the required amount of input compounds, otherwise lower factor
+    if compoundSource:getCompoundAmount(CompoundRegistry.getCompoundId("atp")) >= cost then
+        -- Making sure compound source has the required amount of input compounds, otherwise lower factor
         for compoundId ,baseAmount in pairs(self.inputCompounds) do
-            if factor * baseAmount > parentMicrobe:getCompoundAmount(compoundId) then
-                factor = parentMicrobe:getCompoundAmount(compoundId)/self.inputCompounds[compoundId]
+            if factor * baseAmount > compoundSource:getCompoundAmount(compoundId) then
+                factor = compoundSource:getCompoundAmount(compoundId)/self.inputCompounds[compoundId]
             end
         end
-        -- Take compounds from microbe
+        -- Take compounds from compound source
         for compoundId ,baseAmount in pairs(self.inputCompounds) do
-            parentMicrobe:takeCompound(compoundId, baseAmount*factor)
+            compoundSource:takeCompound(compoundId, baseAmount*factor)
         end
-        -- Give compounds to microbe
+        -- Give compounds to compound source
         for compoundId ,baseAmount in pairs(self.outputCompounds) do
             if storageTarget == nil then
-            parentMicrobe:storeCompound(compoundId, baseAmount*factor)
+                compoundSource:giveCompound(compoundId, baseAmount*factor)
             else
-                storageTarget:storeCompound(compoundId, baseAmount*factor)
+                storageTarget:giveCompound(compoundId, baseAmount*factor)
             end
         end
-        parentMicrobe:takeCompound(CompoundRegistry.getCompoundId("atp"), cost)
+        compoundSource:takeCompound(CompoundRegistry.getCompoundId("atp"), cost)
     else
         factor = 0
     end

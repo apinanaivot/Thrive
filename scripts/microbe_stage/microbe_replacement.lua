@@ -28,7 +28,7 @@ function MicrobeReplacementSystem:activate()
         species:template(newMicrobe)
 
         if newMicrobe:getCompoundAmount(CompoundRegistry.getCompoundId("atp")) < 10 then
-            newMicrobe:storeCompound(CompoundRegistry.getCompoundId("atp"), 10)
+            newMicrobe:giveCompound(CompoundRegistry.getCompoundId("atp"), 10)
         end
 
         newMicrobe.collisionHandler:addCollisionGroup("powerupable")

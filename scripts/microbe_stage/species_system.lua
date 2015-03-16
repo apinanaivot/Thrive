@@ -98,7 +98,7 @@ function SpeciesComponent:template(microbe)
 
     for compoundID, amount in pairs(self.avgCompoundAmounts) do
         if amount ~= 0 then
-            microbe:storeCompound(compoundID, amount, false)
+            microbe:giveCompound(compoundID, amount, false)
         end
     end
     for compoundID, priority in pairs(self.compoundPriorities) do
@@ -107,7 +107,7 @@ function SpeciesComponent:template(microbe)
         end
     end
     -- complimentary serving of atp
-    --newMicrobe:storeCompound(CompoundRegistry.getCompoundId("atp"), 10)
+    --newMicrobe:giveCompound(CompoundRegistry.getCompoundId("atp"), 10)
     return microbe
 end
 

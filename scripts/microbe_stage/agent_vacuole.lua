@@ -35,7 +35,7 @@ function AgentVacuole:takeCompound(compoundId, maxAmount)
     return takenAmount
 end
 
-function AgentVacuole:storeCompound(compoundId, amount)
+function AgentVacuole:giveCompound(compoundId, amount)
     assert(compoundId == self.compoundId, "Tried to store wrong compound/agent from AgentVacuole")
     self.storedAmount = self.storedAmount + amount
 end

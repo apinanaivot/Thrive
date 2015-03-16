@@ -2,6 +2,7 @@ microbe_stage_hud.lua
 hex.lua
 microbe_replacement.lua
 microbe_ai.lua
+compound_pool.lua
 microbe.lua
 camera.lua
 microbe_control.lua

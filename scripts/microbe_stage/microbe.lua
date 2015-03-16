@@ -24,14 +24,18 @@ function MicrobeComponent:__init(isPlayerMicrobe, speciesName)
     self.maxHitpoints = 10
     self.dead = false
     self.deathTimer = 0
+
+    self.movementDirection = Vector3(0, 0, 0)
+    self.facingTargetPoint = Vector3(0, 0, 0)
+
     self.organelles = {}
     self.processOrganelles = {} -- Organelles responsible for producing compounds from other compounds
     self.specialStorageOrganelles = {} -- Organelles with complete resonsiblity for a specific compound (such as agentvacuoles)
-    self.movementDirection = Vector3(0, 0, 0)
-    self.facingTargetPoint = Vector3(0, 0, 0)
     self.capacity = 0  -- The amount that can be stored in the microbe. NOTE: This does not include special storage organelles
     self.stored = 0 -- The amount stored in the microbe. NOTE: This does not include special storage organelles
-    self.compounds = {}
+    
+    self.compounds = {} -- TODO replace with CompoundPool?
+    
     self.compoundPriorities = {}
     self.defaultCompoundPriorities = {}
     self.defaultCompoundPriorities[CompoundRegistry.getCompoundId("atp")] = 10
@@ -567,7 +571,7 @@ end
 --
 -- @param bandwidthLimited
 -- Determines if the storage operation is to be limited by the bandwidth of the microbe
-function Microbe:storeCompound(compoundId, amount, bandwidthLimited)
+function Microbe:giveCompound(compoundId, amount, bandwidthLimited)
     local storedAmount = 0
     if bandwidthLimited then
         storedAmount = self.microbe:getBandwidth(amount, compoundId)
@@ -595,7 +599,7 @@ function Microbe:storeCompound(compoundId, amount, bandwidthLimited)
             end
         end
     else
-        self.microbe.specialStorageOrganelles[compoundId]:storeCompound(compoundId, storedAmount)
+        self.microbe.specialStorageOrganelles[compoundId]:giveCompound(compoundId, storedAmount)
     end
     self.microbe:_updateCompoundPriorities()
 end
@@ -713,7 +717,7 @@ function Microbe:reproduce()
     copy = Microbe.createMicrobeEntity(nil, true)
     self:getSpeciesComponent():template(copy)
     copy.rigidBody.dynamicProperties.position = Vector3(self.rigidBody.dynamicProperties.position.x, self.rigidBody.dynamicProperties.position.y, 0)
-    copy:storeCompound(CompoundRegistry.getCompoundId("atp"), 20, false)
+    copy:giveCompound(CompoundRegistry.getCompoundId("atp"), 20, false)
     copy.microbe:_resetCompoundPriorities()  
     copy.entity:addComponent(SpawnedComponent())
     if self.microbe.isPlayerMicrobe then
@@ -732,7 +736,7 @@ function Microbe:update(logicTime)
         for compound in self.compoundAbsorber:getAbsorbedCompounds() do 
             local amount = self.compoundAbsorber:absorbedCompoundAmount(compound)
             if amount > 0.0 then
-                self:storeCompound(compound, amount, true)
+                self:giveCompound(compound, amount, true)
             end
         end
         -- Distribute compounds to Process Organelles
@@ -846,7 +850,7 @@ function Microbe:respawn()
     )
     local sceneNode = self.entity:getComponent(OgreSceneNodeComponent.TYPE_ID)
     sceneNode.visible = true
-    self:storeCompound(CompoundRegistry.getCompoundId("atp"), 20, false)
+    self:giveCompound(CompoundRegistry.getCompoundId("atp"), 20, false)
 end
 
 -- Private function for initializing a microbe's components
