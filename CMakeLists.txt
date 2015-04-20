@@ -253,11 +253,8 @@ if(NOT USING_CAUDIO)
   include_directories(
     SYSTEM
     "${CMAKE_CURRENT_SOURCE_DIR}/contrib/ogre_ogg_sound/include"
-    ${OpenAL_INCLUDE_DIRS}
-    ${OGG_INCLUDE_DIRS}
-    ${VORBIS_INCLUDE_DIRS}
-    )
-endif()
+    ${CAUDIO_INCLUDE_DIR}
+)
 
 ######################
 # Configure Compiler #
@@ -325,7 +322,6 @@ else()
 endif()
 
 
-
 set_target_properties(ThriveLib PROPERTIES
     OUTPUT_NAME Thrive
 )
@@ -366,12 +362,12 @@ set( DOXYGEN_CONFIG_FILE
 find_package(Doxygen)
 
 if(DOXYGEN_FOUND)
-    configure_file(${DOXYGEN_CONFIG_FILE} "${CMAKE_CURRENT_BINARY_DIR}/doxygen.cfg" @ONLY)
+    configure_file("${DOXYGEN_CONFIG_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/doxygen.cfg" @ONLY)
     add_custom_target(doc
-        ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/doxygen.cfg"
+        "${DOXYGEN_EXECUTABLE}" "${CMAKE_CURRENT_BINARY_DIR}/doxygen.cfg"
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/doc"
         COMMENT "Generating API documentation with Doxygen" VERBATIM
-        SOURCES ${DOXYGEN_CONFIG_FILE}
+        SOURCES "${DOXYGEN_CONFIG_FILE}"
     )
 endif()
 
@@ -571,6 +567,8 @@ if(WIN32)
         "${MINGW_ENV}/install/bin/Debug/liblibpng_d.dll"
         "${MINGW_ENV}/install/bin/Debug/libSILLY_d.dll"
         "${MINGW_ENV}/install/bin/Debug/libzlib_d.dll"
+        "${MINGW_ENV}/install/bin/libcAudio_d.dll"
+        "${MINGW_ENV}/install/bin/wrap_oal.dll"
         "${MINGW_ENV}/install/bin/OpenAL32.dll"
         DESTINATION bin
 		CONFIGURATIONS Debug
@@ -586,6 +584,9 @@ if(WIN32)
         "${MINGW_ENV}/install/bin/Release/liblibpng.dll"
         "${MINGW_ENV}/install/bin/Release/libSILLY.dll"
         "${MINGW_ENV}/install/bin/Release/libzlib.dll"
+        "${MINGW_ENV}/install/bin/Release/libzlib.dll"
+        "${MINGW_ENV}/install/bin/libcAudio.dll"
+        "${MINGW_ENV}/install/bin/wrap_oal.dll"
         "${MINGW_ENV}/install/bin/OpenAL32.dll"
         DESTINATION bin
 		CONFIGURATIONS Release
