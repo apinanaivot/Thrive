@@ -173,7 +173,7 @@
     #********** And we are done ********** ********** ********** ********** ********** ********** ********** **********
 
     IF(NOT CEGUI_FOUND)
-       MESSAGE(SEND_ERROR "Error(s) during CEGUI dedection!")
+       MESSAGE(SEND_ERROR "Error(s) during CEGUI detection!")
     ENDIF()
 
     INCLUDE(FindPackageHandleStandardArgs)

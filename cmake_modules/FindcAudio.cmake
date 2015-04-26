@@ -19,6 +19,7 @@ set(cAudio_LIBRARY_NAMES
 set(cAudio_INCLUDE_PATH_SUFFIXES
   include
   cAudio
+  include/cAudio
   )
 
 set(cAudio_LIBRARY_PATH_SUFFIXES

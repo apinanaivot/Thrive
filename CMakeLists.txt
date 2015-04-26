@@ -255,6 +255,7 @@ if(NOT USING_CAUDIO)
     "${CMAKE_CURRENT_SOURCE_DIR}/contrib/ogre_ogg_sound/include"
     ${CAUDIO_INCLUDE_DIR}
 )
+endif()
 
 ######################
 # Configure Compiler #
